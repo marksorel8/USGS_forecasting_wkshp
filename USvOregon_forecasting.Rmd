@@ -1,0 +1,60 @@
+---
+title: "Forecasting for US v Oregon Managment Agreement"
+output: ioslides_presentation
+date: "2024-08-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Overview of system(s) being managed:	US v Oregon(Hannah)
+
+## Management agreement governing salmon harvest by Washington, Oregon and 4 Treaty Tribes
+
+##	Management stocks
+
+-	Spring Chinook, summer Chinook, sockeye, steelhead (H & W * A & B), Fall Chinooks stocks (several)
+-	Harvest control rules
+
+# Do you use your results to make management decisions? (Hannah)
+
+##	Pre-season plannings
+## In-season management
+##	Post-season assessment
+
+# Current approach to forecasting (Mark)
+
+## What data are available/used? 
+
+-	Response = run reconstruction output
+    - Example: of a run reconstruction: Spring Chinook = Adult Bonneville counts Jan 1 – June 15 + Lower River harvest
+- age composition date
+-	Inseason dam counts
+-	River flow (for inseason model)
+-	Other environmental covariates available but not used  much currently
+
+## What type of analyses do you conduct? (Mark)
+	
+- Sibling regression with dynamic linear models and model averaging
+-	x-year averages (e.g., 5-year or 10 year)
+-	Occasionally will look at other things
+
+
+# How good do they do? (forecast accuracy summary or simple statement of current problems) (Mark & Hannah)
+
+## Plot of actual vs forecast 
+
+## Joint likelihood inseason model plot example
+
+
+# What would most help you in improving future forecasts?
+
+## General challenges (Hannah)
+
+-	Environmental covariates
+    -	Which ones?
+    -	Matching covariates with habitat use of stock in space and time
+        - What do we know about where fish are and when, and what affects their survival
+    -	How to incorporate?
+        -	Variable selection, regularization, etc. (optional)
