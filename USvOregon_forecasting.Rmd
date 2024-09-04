@@ -5,7 +5,12 @@ date: "2024-08-28"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+# Manually update this value to invalidate the cache
+reset_cache <- "v1"
+
+knitr::opts_chunk$set(echo = FALSE, cache.extra = reset_cache)
+
+library(tidyverse)
 ```
 
 # Overview of system(s) being managed:	US v Oregon (Hannah)
@@ -73,12 +78,12 @@ $$
 
 # How good do they do? (forecast accuracy summary or simple statement of current problems) (Mark & Hannah)
 
-## Plot of actual vs forecast 
-```{r eval=TRUE, cache=TRUE,include=FALSE}
+##  Chinook preseason MAPE 25--30%
+```{r eval=TRUE, message=FALSE, warning=FALSE, cache=TRUE, include=FALSE}
 ##save your API key in your environmental variables.
 ###https://cran.r-project.org/web/packages/httr/vignettes/secrets.html
 ###Talk to Mark or Adam or Aileen if you don't have an API key
-api_key<-Sys.getenv("api_key")
+api_key<-Sys.getenv("api_key") 
 
 server <- "Production"
 
@@ -111,8 +116,8 @@ packages <- c("tidyr",
 
 ```
 
-```{r}
-library(tidyverse)
+```{r, message=FALSE, warning=FALSE,fig.cap="Black line is the 10-year average absolute prediction error (MAPE)"}
+
 test<-api_returns_forecasts |> filter(ReturnsForecastsStockName %in% c("Upriver Spring Chinook","Upper Columbia Summer Chinook","Upriver Bright (URB) Fall Chinook","Lower River Hatchery (LRH) Fall Chinook")) |> 
   filter(between(Year,2006,2023)) |> 
   select(Year,Stock=ReturnsForecastsStockName,Type=ReturnsForecastsCountTypeName,Count) |> 
@@ -133,9 +138,49 @@ test |> ungroup() |>
 
 ```
 
+## Steelhead preseason MAPE ~50%
+```{r, message=FALSE, warning=FALSE,fig.cap="Black line is the 10-year average absolute prediction error (MAPE)"}
+
+test<-api_returns_forecasts |> filter(ReturnsForecastsStockName %in% c("A-Index Summer Steelhead" ,"B-Index Summer Steelhead" )) |> 
+  filter(between(Year,2006,2023)) |> 
+  select(Year,Stock=ReturnsForecastsStockName,Type=ReturnsForecastsCountTypeName,Count) |> 
+  group_by(Year,Stock,Type) |> 
+  dplyr::summarize(Count=mean(Count,na.rm=TRUE)) |> 
+  pivot_wider(names_from = Type,values_from = Count) |> 
+  arrange(Year) |> 
+  group_by(Stock) |> 
+  mutate(error=Predicted-Actual,
+         pct_error=(error/Actual)*100,
+         APE=(abs(error)/Actual)*100,
+         MAPE=zoo::rollmean(APE,k=10,align="right",na.pad = TRUE))
+
+test |> ungroup() |> 
+  mutate(Stock=fct_relevel(Stock,c("A-Index Summer Steelhead" ,"B-Index Summer Steelhead" ))) |> 
+  ggplot(aes(x=Year))+geom_bar(aes(,y=pct_error,fill = pct_error > 0),stat = "identity") + scale_fill_manual(values = c("TRUE" = "red", "FALSE" = "black")) +facet_wrap(~Stock)+theme(legend.position = "none",axis.title.x = element_blank())+ylab("Percent error")+geom_line(aes(y=MAPE))
+
+```
 
 
-## Joint likelihood inseason model plot example
+## Joint likelihood inseason model
+
+<!-- ![Violin plots of posterior distributions for River-mouth Spring Chinook run sizes estimated from the model. Violin fill is darkest for most recent estimate. Dashed reference lines are IQR and solid line is median of posterior.](joint_likelihhod inseason plot.png) -->
+
+```{r , out.width='80%',fig.align='center'}
+ knitr::include_graphics("joint_likelihhod inseason plot.png")
+#
+```  
+Violin plots of posterior for River-mouth run sizes. Dashed reference lines are IQR and solid line is median of posterior
+
+## Inseason linear model
+
+<!-- ![Violin plots of posterior distributions for River-mouth Spring Chinook run sizes estimated from the model. Violin fill is darkest for most recent estimate. Dashed reference lines are IQR and solid line is median of posterior.](joint_likelihhod inseason plot.png) -->
+
+```{r , out.width='100%',fig.align='center'}
+ knitr::include_graphics("Haeseker inseason.png")
+#
+```  
+
+Dashed lines spawn 95% prediction interval. Solid blue line is expected value. Red line is count to date.
 
 # What would most help you in improving future forecasts?
 
