@@ -8,7 +8,7 @@ date: "2024-08-28"
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-# Overview of system(s) being managed:	US v Oregon(Hannah)
+# Overview of system(s) being managed:	US v Oregon (Hannah)
 
 ## Management agreement governing salmon harvest by Washington, Oregon and 4 Treaty Tribes
 
@@ -28,17 +28,37 @@ knitr::opts_chunk$set(echo = FALSE)
 ## What data are available/used? 
 
 -	Response = run reconstruction output
-    - Example: of a run reconstruction: Spring Chinook = Adult Bonneville counts Jan 1 – June 15 + Lower River harvest
-- age composition date
--	Inseason dam counts
--	River flow (for inseason model)
--	Other environmental covariates available but not used  much currently
+    - Abundance indices used for harvest management
+    - Example: Spring Chinook = Adult Bonneville counts Jan 1 – June 15 + Lower River harvest
+    
+## What data are available/used? 
+
+-	Response = run reconstruction output
+    - Abundance indices used for harvest management
+    - Example: Spring Chinook = Adult Bonneville counts   
+    Jan 1 – June 15 + Lower River harvest
+- Predictors
+    - Preseason
+        - Age composition
+        - Environmental covariates (not currenly used)
+    - During season
+        -	Dam counts
+        -	River flow (for inseason model)
 
 ## What type of analyses do you conduct? (Mark)
 	
-- Sibling regression with dynamic linear models and model averaging
--	x-year averages (e.g., 5-year or 10 year)
--	Occasionally will look at other things
+- Sibling regression 
+    - Dynamic linear models
+$$
+\small
+\left\{\begin{aligned}
+\mathrm{log}(y_{a,t}) & =\alpha_t+\mathrm{log}(y_{a-1,t-1}) \beta_t+v_t, & & v_t  \sim \mathcal{N}\left(0, V_t\right) \\
+\alpha_t & =\alpha_{t-1}+w_{\alpha, t}, & & w_{\alpha, t} \sim \mathcal{N}\left(0, W_{\alpha, t}\right) \\
+\beta_t & =\beta_{t-1}+w_{\beta, t}, & & w_{\beta, t} \sim \mathcal{N}\left(0, W_{\beta, t}\right) 
+\end{aligned}\right.
+$$
+    - Model averaging  
+-	Multi-year averages (e.g., 5-year or 10 year)
 
 
 # How good do they do? (forecast accuracy summary or simple statement of current problems) (Mark & Hannah)
@@ -46,7 +66,6 @@ knitr::opts_chunk$set(echo = FALSE)
 ## Plot of actual vs forecast 
 
 ## Joint likelihood inseason model plot example
-
 
 # What would most help you in improving future forecasts?
 
