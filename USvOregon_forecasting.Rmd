@@ -113,13 +113,24 @@ packages <- c("tidyr",
 
 ```{r}
 library(tidyverse)
-api_returns_forecasts |> filter(ReturnsForecastsStockName %in% c("Upriver Spring Chinook","Upper Columbia Summer Chinook","Upriver Bright (URB) Fall Chinook","Lower River Hatchery (LRH) Fall Chinook")) |> 
-  filter(between(Year,2005,2023)) |> 
+test<-api_returns_forecasts |> filter(ReturnsForecastsStockName %in% c("Upriver Spring Chinook","Upper Columbia Summer Chinook","Upriver Bright (URB) Fall Chinook","Lower River Hatchery (LRH) Fall Chinook")) |> 
+  filter(between(Year,2006,2023)) |> 
   select(Year,Stock=ReturnsForecastsStockName,Type=ReturnsForecastsCountTypeName,Count) |> 
   group_by(Year,Stock,Type) |> 
-  dplyr::summarize(Count=mean(Count)) |> 
+  dplyr::summarize(Count=mean(Count,na.rm=TRUE)) |> 
   pivot_wider(names_from = Type,values_from = Count) |> 
-  ggplot(aes(x=Actual,y=Predicted))
+  arrange(Year) |> 
+  group_by(Stock) |> 
+  mutate(error=Predicted-Actual,
+         pct_error=(error/Actual)*100,
+         APE=(abs(error)/Actual)*100,
+         MAPE=zoo::rollmean(APE,k=10,align="right",na.pad = TRUE))
+
+test |> ungroup() |> 
+  mutate(Stock=fct_relevel(Stock,c( "Upriver Spring Chinook"  ,"Upper Columbia Summer Chinook", "Lower River Hatchery (LRH) Fall Chinook", "Upriver Bright (URB) Fall Chinook"))) |> 
+  ggplot(aes(x=Year))+geom_bar(aes(,y=pct_error,fill = pct_error > 0),stat = "identity") + scale_fill_manual(values = c("TRUE" = "red", "FALSE" = "black")) +facet_wrap(~Stock)+theme(legend.position = "none",axis.title.x = element_blank())+ylab("Percent error")+geom_line(aes(y=MAPE))
+
+
 ```
 
 
