@@ -45,7 +45,7 @@ library(tidyverse)
     - Preseason
         - Previous years' abundance
             - Age composition
-        - Environmental excoriates (not currently used much)
+        - Environmental variables (not currently used much)
     - During season
         -	Dam counts
         -	River flow
@@ -192,3 +192,4 @@ Dashed lines spawn 95% prediction interval. Solid blue line is expected value. R
         - What do we know about where fish are and when, and what affects their survival
     -	How to incorporate?
         -	Variable selection, regularization, etc. (optional)
+        
