@@ -27,23 +27,23 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## What data are available/used? 
 
--	Response = run reconstruction output
-    - Abundance indices used for harvest management
-    - Example: Spring Chinook = Adult Bonneville counts Jan 1 – June 15 + Lower River harvest
+-	**Response** = run reconstruction output
+    - i.e., abundance indices
+    - Example: Upriver spring Chinook =   
+    Jan 1 – June 15 Bonneville counts + harvest < Bonneville
+    - Generally by age
+        - Not sure if we always *need* to (Ethan and Michael?)
     
 ## What data are available/used? 
 
--	Response = run reconstruction output
-    - Abundance indices used for harvest management
-    - Example: Spring Chinook = Adult Bonneville counts   
-    Jan 1 – June 15 + Lower River harvest
-- Predictors
+- **Predictors**
     - Preseason
-        - Age composition
-        - Environmental covariates (not currenly used)
+        - Previous years' abundance
+            - Age composition
+        - Environmental excoriates (not currently used much)
     - During season
         -	Dam counts
-        -	River flow (for inseason model)
+        -	River flow
 
 ## What type of analyses do you conduct? (Mark)
 	
@@ -61,9 +61,68 @@ $$
 -	Multi-year averages (e.g., 5-year or 10 year)
 
 
+
+## What type of analyses do you conduct? (Mark)
+
+- **During season**
+    - Average run timing $$\small \text{Bonneville return} = \frac{\text{Bonneville return through day}~d}{\text{Ave. prop. complete through day}~d} $$
+    - Integrated model with likelihoods for
+       - pre-season sibling regression
+       - in-season dam counts and run timing
+    - Linear models with jacks and dam counts as predictors
+
 # How good do they do? (forecast accuracy summary or simple statement of current problems) (Mark & Hannah)
 
 ## Plot of actual vs forecast 
+```{r eval=TRUE, cache=TRUE,include=FALSE}
+##save your API key in your environmental variables.
+###https://cran.r-project.org/web/packages/httr/vignettes/secrets.html
+###Talk to Mark or Adam or Aileen if you don't have an API key
+api_key<-Sys.getenv("api_key")
+
+server <- "Production"
+
+packages <- c("tidyr",
+                "httr",
+                "jsonlite")
+
+  if (!require(install.load)) {
+    install.packages("install.load")
+  }
+
+  install.load::install_load(packages)
+
+  # Test server: https://usvordev.psmfc.org/
+  # Production server: https://usvor.psmfc.org/
+
+  server_prefix<-ifelse(server == "Production", yes = "https://usvor.psmfc.org", no = "https://usvordev.psmfc.org")
+  
+  url_returns_forecasts <- paste(server_prefix, "/TACAPI/GetReturnsForecast", sep="")
+  
+   # Connect to returns and forecasts table
+  api_returns_forecasts <- 
+    GET(url_returns_forecasts, add_headers("APIKey" = api_key)) |> 
+    httr::content( type = "application/json") |> 
+    purrr::pluck(1) |> 
+    (\(x) do.call(rbind, x))() |> 
+    as.data.frame() |> 
+    unnest(everything())
+
+
+```
+
+```{r}
+library(tidyverse)
+api_returns_forecasts |> filter(ReturnsForecastsStockName %in% c("Upriver Spring Chinook","Upper Columbia Summer Chinook","Upriver Bright (URB) Fall Chinook","Lower River Hatchery (LRH) Fall Chinook")) |> 
+  filter(between(Year,2005,2023)) |> 
+  select(Year,Stock=ReturnsForecastsStockName,Type=ReturnsForecastsCountTypeName,Count) |> 
+  group_by(Year,Stock,Type) |> 
+  dplyr::summarize(Count=mean(Count)) |> 
+  pivot_wider(names_from = Type,values_from = Count) |> 
+  ggplot(aes(x=Actual,y=Predicted))
+```
+
+
 
 ## Joint likelihood inseason model plot example
 
