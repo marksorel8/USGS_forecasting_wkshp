@@ -64,6 +64,8 @@ $$
 
 $$\small \text{Bonneville return} = \frac{\text{Bonneville return through day}~d}{\text{Ave. prop. complete through day}~d} $$
 
+## We also integrate pre-season and in-season predictors to update forecasts
+
 - Integrated model with likelihoods for
     - pre-season sibling regression
     - in-season dam counts and run timing
